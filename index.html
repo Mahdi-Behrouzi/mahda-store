@@ -1,1 +1,25 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>چیدمان الگوها</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>طراحی چیدمان الگوها</h1>
+    <div class="form">
+        <label>عرض پارچه (cm):</label>
+        <input type="number" id="fabricWidth" placeholder="مثلاً 140">
+
+        <label>الگوها (عرض، طول، تعداد):</label>
+        <textarea id="patternInput" placeholder="مثلاً: 60,110,3\n50,90,3"></textarea>
+
+        <button onclick="generateLayout()">چیدمان</button>
+    </div>
+
+    <canvas id="layoutCanvas" width="1000" height="1000"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
 
