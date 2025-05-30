@@ -1,1 +1,23 @@
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #f8f8f8;
+    padding: 20px;
+}
+
+.form {
+    margin-bottom: 20px;
+}
+
+input, textarea {
+    width: 300px;
+    padding: 8px;
+    margin: 5px;
+    font-size: 16px;
+}
+
+canvas {
+    background: #fff;
+    border: 1px solid #ccc;
+}
 
