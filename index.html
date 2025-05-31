@@ -6,23 +6,25 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <h1>طراحی چیدمان الگو</h1>
 
-  <h2>تنظیمات چیدمان الگو</h2>
-
-  <label>عرض پارچه (سانتی‌متر):</label><br>
-  <input type="number" id="fabricWidth" placeholder="مثلاً 140">
-  <button id="setFabricWidthBtn">ذخیره عرض پارچه</button>
-
-  <hr>
-
-  <label>اندازه الگو (عرض x طول):</label><br>
-  <input type="text" id="patternSize" placeholder="مثلاً 60x110">
-  <button id="addPatternBtn">ذخیره اندازه الگو</button>
-
-  <div id="output">
-    <h3>اطلاعات ثبت‌شده:</h3>
-    <ul id="infoArea"></ul>
+  <div class="inputs">
+    <label>عرض پارچه (سانتی‌متر):
+      <input type="number" id="fabricWidth" value="140">
+    </label>
+    <br>
+    <label>الگوها (عرض×طول):
+      <textarea id="patternSizes" placeholder="مثلاً: 50x90, 30x100, 60x110"></textarea>
+    </label>
+    <br>
+    <label>تعداد هر الگو:
+      <input type="number" id="patternCount" value="3">
+    </label>
+    <br>
+    <button onclick="generateLayout()">محاسبه و نمایش</button>
   </div>
+
+  <canvas id="canvas" width="1000" height="2000"></canvas>
 
   <script src="script.js"></script>
 </body>
