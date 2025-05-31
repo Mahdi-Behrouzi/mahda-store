@@ -9,21 +9,19 @@
 
   <h2>تنظیمات چیدمان الگو</h2>
 
-  <!-- وارد کردن عرض پارچه -->
   <label>عرض پارچه (سانتی‌متر):</label><br>
-  <input type="number" id="fabricWidth" placeholder="مثلاً 140"><br>
-  <button onclick="setFabricWidth()">ذخیره عرض پارچه</button>
+  <input type="number" id="fabricWidth" placeholder="مثلاً 140">
+  <button id="setFabricWidthBtn">ذخیره عرض پارچه</button>
 
   <hr>
 
-  <!-- وارد کردن اندازه الگو -->
   <label>اندازه الگو (عرض x طول):</label><br>
-  <input type="text" id="patternSize" placeholder="مثلاً 60x110"><br>
-  <button onclick="addPattern()">ذخیره اندازه الگو</button>
+  <input type="text" id="patternSize" placeholder="مثلاً 60x110">
+  <button id="addPatternBtn">ذخیره اندازه الگو</button>
 
-  <div class="output" id="output">
+  <div id="output">
     <h3>اطلاعات ثبت‌شده:</h3>
-    <div id="infoArea"></div>
+    <ul id="infoArea"></ul>
   </div>
 
   <script src="script.js"></script>
