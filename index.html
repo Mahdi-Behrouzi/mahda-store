@@ -11,19 +11,19 @@
 
     <div>
         <label for="عرض_پارچه">عرض پارچه:</label>
-        <input type="number" id="عرض_پارچه" name="عرض_پارچه">
+        <input type="number" id="عرض_پارچه" name="عرض_پارچه" value="100">
     </div>
 
     <div>
-        <label for="الگوها">ابعاد الگوها (طول,عرض - هر الگو در یک خط):</label>
-        <textarea id="الگوها" name="الگوها" rows="5" cols="30"></textarea>
+        <label for="الگوها">ابعاد الگوها (طول,عرض - هر الگو در یک خط، مثال: 20,30):</label>
+        <textarea id="الگوها" name="الگوها" rows="5" cols="30">20,30\n15,40\n25,20</textarea>
     </div>
 
     <button onclick="محاسبه_چیدمان()">محاسبه چیدمان</button>
 
-    <div id="result">
+    <div id="result-container">
         <h2>نتایج چیدمان (متنی):</h2>
-        <pre id="نتایج_چیدمان"></pre>
+        <pre id="نتایج_متنی"></pre>
     </div>
 
     <div id="canvas-container">
