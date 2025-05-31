@@ -1,23 +1,22 @@
 body {
-    font-family: sans-serif;
-    text-align: center;
-    background: #f8f8f8;
-    padding: 20px;
+  font-family: sans-serif;
+  direction: rtl;
+  padding: 20px;
 }
 
-.form {
-    margin-bottom: 20px;
+input, button {
+  margin: 5px 0;
+  padding: 8px;
+  font-size: 16px;
 }
 
-input, textarea {
-    width: 300px;
-    padding: 8px;
-    margin: 5px;
-    font-size: 16px;
+.output {
+  margin-top: 20px;
+  background: #f0f0f0;
+  padding: 10px;
 }
 
-canvas {
-    background: #fff;
-    border: 1px solid #ccc;
+.item {
+  border-bottom: 1px solid #ccc;
+  padding: 5px;
 }
-
