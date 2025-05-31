@@ -1,65 +1,51 @@
-function generateLayout() {
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function draw() {
+  const fabricWidth = parseFloat(document.getElementById("fabricWidth").value);
+  const repeat = parseInt(document.getElementById("repeat").value);
+  const rawInput = document.getElementById("patternInput").value.trim().split('\n');
 
-  const fabricWidth = parseInt(document.getElementById('fabricWidth').value);
-  const rawSizes = document.getElementById('patternSizes').value;
-  const countPerPattern = parseInt(document.getElementById('patternCount').value);
+  const ctx = document.getElementById("canvas").getContext("2d");
+  ctx.clearRect(0, 0, 1000, 1000);
 
-  const allPatterns = [];
+  // مقیاس تبدیل سانتی‌متر به پیکسل
+  const scale = 5; // یعنی هر 1 سانتی‌متر = 5 پیکسل
+  const fabricWidthPx = fabricWidth * scale;
 
-  // Parse and replicate patterns
-  rawSizes.split(',').forEach(sizeStr => {
-    const [w, h] = sizeStr.trim().split(/[x×]/).map(Number);
-    for (let i = 0; i < countPerPattern; i++) {
-      allPatterns.push({ width: w, height: h });
+  // لیست الگوها با تکرار
+  let patterns = [];
+  rawInput.forEach(line => {
+    const [w, h] = line.split('x').map(Number);
+    for (let i = 0; i < repeat; i++) {
+      patterns.push({ w, h });
     }
   });
 
-  // چیدمان بهینه با بررسی چرخش
-  const placed = [];
-  let currentY = 0;
-  let rowHeight = 0;
-  let x = 0;
+  // الگوریتم چیدن در ردیف‌های متوالی
+  let x = 0, y = 0, rowHeight = 0;
+  ctx.font = "10px sans-serif";
 
-  allPatterns.sort((a, b) => Math.max(b.width, b.height) - Math.max(a.width, a.height));
+  patterns.forEach((pattern, index) => {
+    const pw = pattern.w * scale;
+    const ph = pattern.h * scale;
 
-  for (let i = 0; i < allPatterns.length; i++) {
-    let p = allPatterns[i];
-
-    // بررسی جا شدن افقی
-    let fitsNormal = (x + p.width <= fabricWidth);
-    let fitsRotated = (x + p.height <= fabricWidth);
-
-    if (fitsNormal || fitsRotated) {
-      let rotate = false;
-
-      if (!fitsNormal && fitsRotated) {
-        // چرخش
-        rotate = true;
-        [p.width, p.height] = [p.height, p.width];
-      }
-
-      placed.push({ x, y: currentY, ...p, rotated: rotate });
-      x += p.width;
-      rowHeight = Math.max(rowHeight, p.height);
-    } else {
-      // رفتن به سطر بعد
-      currentY += rowHeight + 10;
+    if (x + pw > fabricWidthPx) {
+      // برو به ردیف بعدی
       x = 0;
+      y += rowHeight + 10;
       rowHeight = 0;
-      i--; // بررسی مجدد همین قطعه در ردیف جدید
     }
-  }
 
-  // رسم الگوها
-  ctx.font = "12px Arial";
-  placed.forEach((p, i) => {
-    ctx.fillStyle = '#'+Math.floor(Math.random()*16777215).toString(16);
-    ctx.fillRect(p.x * 4, p.y * 4, p.width * 4, p.height * 4);
-    ctx.strokeRect(p.x * 4, p.y * 4, p.width * 4, p.height * 4);
-    ctx.fillStyle = '#000';
-    ctx.fillText(`${p.width}×${p.height}${p.rotated ? ' ⟳' : ''}`, p.x * 4 + 4, p.y * 4 + 14);
+    // رسم مستطیل
+    ctx.fillStyle = "#66b";
+    ctx.fillRect(x, y, pw, ph);
+
+    // خط دور و متن
+    ctx.strokeStyle = "#000";
+    ctx.strokeRect(x, y, pw, ph);
+    ctx.fillStyle = "#000";
+    ctx.fillText(`${pattern.w}x${pattern.h}`, x + 5, y + 15);
+
+    // آپدیت مکان
+    x += pw + 5;
+    rowHeight = Math.max(rowHeight, ph);
   });
-      }
+}
