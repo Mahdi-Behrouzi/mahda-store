@@ -2,30 +2,40 @@
 <html lang="fa">
 <head>
   <meta charset="UTF-8">
-  <title>طراحی چیدمان الگوها</title>
-  <link rel="stylesheet" href="style.css">
+  <title>چیدمان الگوها</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; direction: rtl; }
+    .canvas-container {
+      margin-top: 20px;
+      overflow-x: auto;
+      border: 1px solid #ccc;
+      display: inline-block;
+    }
+    canvas {
+      background: #f0f0f0;
+    }
+    input, button {
+      margin: 5px;
+      padding: 5px 10px;
+    }
+  </style>
 </head>
 <body>
-  <h1>طراحی چیدمان الگو</h1>
 
-  <div class="inputs">
-    <label>عرض پارچه (سانتی‌متر):
-      <input type="number" id="fabricWidth" value="140">
-    </label>
-    <br>
-    <label>الگوها (عرض×طول):
-      <textarea id="patternSizes" placeholder="مثلاً: 50x90, 30x100, 60x110"></textarea>
-    </label>
-    <br>
-    <label>تعداد هر الگو:
-      <input type="number" id="patternCount" value="3">
-    </label>
-    <br>
-    <button onclick="generateLayout()">محاسبه و نمایش</button>
-  </div>
+<h2>چیدمان الگوها روی پارچه</h2>
 
-  <canvas id="canvas" width="1000" height="2000"></canvas>
+<label>عرض پارچه (cm): <input type="number" id="fabricWidth" value="140"></label><br>
 
-  <script src="script.js"></script>
+<textarea id="patternInput" rows="6" cols="40" placeholder="مثلاً:\n60x110\n50x90\n30x140\nهر خط یک اندازه بنویسید"></textarea><br>
+
+<label>تعداد از هر الگو: <input type="number" id="repeat" value="3"></label><br>
+
+<button onclick="draw()">محاسبه و چیدمان</button>
+
+<div class="canvas-container">
+  <canvas id="canvas" width="1000" height="1000"></canvas>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
