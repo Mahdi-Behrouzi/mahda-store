@@ -1,41 +1,90 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-  <meta charset="UTF-8">
-  <title>چیدمان الگوها</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; direction: rtl; }
-    .canvas-container {
-      margin-top: 20px;
-      overflow-x: auto;
-      border: 1px solid #ccc;
-      display: inline-block;
-    }
-    canvas {
-      background: #f0f0f0;
-    }
-    input, button {
-      margin: 5px;
-      padding: 5px 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نرم افزار چیدمان الگو</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="number"] {
+            width: 100px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
+    <h1>نرم افزار چیدمان الگو</h1>
 
-<h2>چیدمان الگوها روی پارچه</h2>
+    <div>
+        <label for="عرض_پارچه">عرض پارچه:</label>
+        <input type="number" id="عرض_پارچه" name="عرض_پارچه">
+    </div>
 
-<label>عرض پارچه (cm): <input type="number" id="fabricWidth" value="140"></label><br>
+    <div>
+        <label for="الگوها">ابعاد الگوها (طول,عرض - هر الگو در یک خط):</label>
+        <textarea id="الگوها" name="الگوها" rows="5" cols="30"></textarea>
+    </div>
 
-<textarea id="patternInput" rows="6" cols="40" placeholder="مثلاً:\n60x110\n50x90\n30x140\nهر خط یک اندازه بنویسید"></textarea><br>
+    <button onclick="محاسبه_چیدمان()">محاسبه چیدمان</button>
 
-<label>تعداد از هر الگو: <input type="number" id="repeat" value="3"></label><br>
+    <div id="result">
+        <h2>نتایج چیدمان:</h2>
+        <pre id="نتایج_چیدمان"></pre>
+    </div>
 
-<button onclick="draw()">محاسبه و چیدمان</button>
+    <script>
+        async function محاسبه_چیدمان() {
+            const عرض_پارچه = parseFloat(document.getElementById("عرض_پارچه").value);
+            const الگوها_ورودی = document.getElementById("الگوها").value.trim().split('\n');
+            const الگوها = الگوها_ورودی.map(خط => {
+                const ابعاد = خط.split(',').map(s => parseFloat(s.trim()));
+                if (ابعاد.length === 2 && !isNaN(ابعاد[0]) && !isNaN(ابعاد[1])) {
+                    return [ابعاد[0], ابعاد[1]];
+                }
+                return null;
+            }).filter(الگو => الگو !== null);
 
-<div class="canvas-container">
-  <canvas id="canvas" width="1000" height="1000"></canvas>
-</div>
+            if (isNaN(عرض_پارچه) || الگوها.length === 0) {
+                document.getElementById("نتایج_چیدمان").textContent = "لطفاً عرض پارچه و ابعاد الگوها را به درستی وارد کنید.";
+                return;
+            }
 
-<script src="script.js"></script>
+            // ارسال داده ها به سرور پایتون (نیاز به راه اندازی یک سرور Flask یا Django دارید)
+            const response = await fetch('/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    عرض_پارچه: عرض_پارچه,
+                    الگوها: الگوها
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById("نتایج_چیدمان").textContent = JSON.stringify(data, null, 2);
+            } else {
+                document.getElementById("نتایج_چیدمان").textContent = "خطا در برقراری ارتباط با سرور.";
+            }
+        }
+    </script>
 </body>
 </html>
