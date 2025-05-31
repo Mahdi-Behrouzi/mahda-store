@@ -1,44 +1,40 @@
-let fabricWidth = 0;
+let fabricWidth = null;
 const patterns = [];
 
-function setFabricWidth() {
-  const width = parseInt(document.getElementById('fabricWidth').value);
-  if (isNaN(width) || width <= 0) {
-    alert("لطفاً عرض پارچه را به‌درستی وارد کنید.");
+document.getElementById('setFabricWidthBtn').addEventListener('click', () => {
+  const value = parseInt(document.getElementById('fabricWidth').value);
+  if (isNaN(value) || value <= 0) {
+    alert('عرض پارچه نامعتبر است.');
     return;
   }
-  fabricWidth = width;
-  updateDisplay();
-}
+  fabricWidth = value;
+  showData();
+});
 
-function addPattern() {
-  const value = document.getElementById('patternSize').value.trim();
-  const parts = value.split('x');
-  if (parts.length !== 2) {
-    alert("لطفاً به‌صورت عرض x طول وارد کنید.");
-    return;
-  }
-  const w = parseInt(parts[0]);
-  const h = parseInt(parts[1]);
+document.getElementById('addPatternBtn').addEventListener('click', () => {
+  const input = document.getElementById('patternSize').value.trim();
+  const [w, h] = input.split('x').map(Number);
   if (isNaN(w) || isNaN(h)) {
-    alert("مقدار عددی معتبر نیست.");
+    alert('اندازه الگو نادرست است. به‌صورت عرضxطول وارد کنید.');
     return;
   }
-  patterns.push({width: w, height: h});
-  updateDisplay();
-}
+  patterns.push({ width: w, height: h });
+  showData();
+});
 
-function updateDisplay() {
-  const info = document.getElementById('infoArea');
-  info.innerHTML = "";
+function showData() {
+  const list = document.getElementById('infoArea');
+  list.innerHTML = '';
 
-  if (fabricWidth > 0) {
-    info.innerHTML += `<div class="item"><strong>عرض پارچه:</strong> ${fabricWidth} سانتی‌متر</div>`;
+  if (fabricWidth) {
+    const li = document.createElement('li');
+    li.textContent = `عرض پارچه: ${fabricWidth} سانتی‌متر`;
+    list.appendChild(li);
   }
 
-  if (patterns.length > 0) {
-    patterns.forEach((p, i) => {
-      info.innerHTML += `<div class="item">الگو ${i + 1}: ${p.width} × ${p.height} سانتی‌متر</div>`;
-    });
-  }
+  patterns.forEach((p, i) => {
+    const li = document.createElement('li');
+    li.textContent = `الگو ${i + 1}: ${p.width} × ${p.height} سانتی‌متر`;
+    list.appendChild(li);
+  });
 }
