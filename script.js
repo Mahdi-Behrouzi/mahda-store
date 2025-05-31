@@ -1,51 +1,67 @@
-function draw() {
-  const fabricWidth = parseFloat(document.getElementById("fabricWidth").value);
-  const repeat = parseInt(document.getElementById("repeat").value);
-  const rawInput = document.getElementById("patternInput").value.trim().split('\n');
+async function محاسبه_چیدمان() {
+    const عرض_پارچه = parseFloat(document.getElementById("عرض_پارچه").value);
+    const الگوها_ورودی = document.getElementById("الگوها").value.trim().split('\n');
+    const الگوها = الگوها_ورودی.map(خط => {
+        const ابعاد = خط.split(',').map(s => parseFloat(s.trim()));
+        if (ابعاد.length === 2 && !isNaN(ابعاد[0]) && !isNaN(ابعاد[1])) {
+            return [ابعاد[0], ابعاد[1]];
+        }
+        return null;
+    }).filter(الگو => الگو !== null);
 
-  const ctx = document.getElementById("canvas").getContext("2d");
-  ctx.clearRect(0, 0, 1000, 1000);
-
-  // مقیاس تبدیل سانتی‌متر به پیکسل
-  const scale = 5; // یعنی هر 1 سانتی‌متر = 5 پیکسل
-  const fabricWidthPx = fabricWidth * scale;
-
-  // لیست الگوها با تکرار
-  let patterns = [];
-  rawInput.forEach(line => {
-    const [w, h] = line.split('x').map(Number);
-    for (let i = 0; i < repeat; i++) {
-      patterns.push({ w, h });
-    }
-  });
-
-  // الگوریتم چیدن در ردیف‌های متوالی
-  let x = 0, y = 0, rowHeight = 0;
-  ctx.font = "10px sans-serif";
-
-  patterns.forEach((pattern, index) => {
-    const pw = pattern.w * scale;
-    const ph = pattern.h * scale;
-
-    if (x + pw > fabricWidthPx) {
-      // برو به ردیف بعدی
-      x = 0;
-      y += rowHeight + 10;
-      rowHeight = 0;
+    if (isNaN(عرض_پارچه) || الگوها.length === 0) {
+        document.getElementById("نتایج_چیدمان").textContent = "لطفاً عرض پارچه و ابعاد الگوها را به درستی وارد کنید.";
+        return;
     }
 
-    // رسم مستطیل
-    ctx.fillStyle = "#66b";
-    ctx.fillRect(x, y, pw, ph);
+    const response = await fetch('/calculate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            عرض_پارچه: عرض_پارچه,
+            الگوها: الگوها
+        })
+    });
 
-    // خط دور و متن
-    ctx.strokeStyle = "#000";
-    ctx.strokeRect(x, y, pw, ph);
-    ctx.fillStyle = "#000";
-    ctx.fillText(`${pattern.w}x${pattern.h}`, x + 5, y + 15);
+    if (response.ok) {
+        const data = await response.json();
+        document.getElementById("نتایج_چیدمان").textContent = JSON.stringify(data, null, 2);
 
-    // آپدیت مکان
-    x += pw + 5;
-    rowHeight = Math.max(rowHeight, ph);
-  });
+        // تابع برای رسم الگوها روی Canvas
+        نمایش_بصری(عرض_پارچه, data);
+    } else {
+        document.getElementById("نتایج_چیدمان").textContent = "خطا در برقراری ارتباط با سرور.";
+    }
+}
+
+function نمایش_بصری(عرض_پارچه_نمایش, نتایج_چیدمان_نمایش) {
+    const canvas = document.getElementById("patternCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // پاک کردن Canvas
+
+    if (!نتایج_چیدمان_نمایش || !Array.isArray(نتایج_چیدمان_نمایش)) {
+        console.error("فرمت داده های چیدمان برای نمایش بصری نامعتبر است.");
+        return;
+    }
+
+    // تنظیم مقیاس برای نمایش الگوها در Canvas
+    const مقیاس = canvas.width / عرض_پارچه_نمایش; // فرض می کنیم عرض Canvas متناسب با عرض پارچه است
+
+    let موقعیت_فعلی_y_نمایش = 0;
+
+    نتایج_چیدمان_نمایش.forEach(نتیجه => {
+        if (نتیجه && Array.isArray(نتیجه) && نتیجه.length === 4) {
+            const x = نتیجه[0] * مقیاس;
+            const y = موقعیت_فعلی_y_نمایش * مقیاس; // در این مثال ساده، فقط در راستای Y چیده می شوند
+            const طول = نتیجه[2] * مقیاس;
+            const عرض = نتیجه[3] * مقیاس;
+
+            ctx.strokeRect(x, y, عرض, طول); // توجه: طول و عرض اینجا جابجا شده اند چون در چیدمان خطی Y را افزایش دادیم
+            ctx.fillText(`(${نتیجه[2]}, ${نتیجه[3]})`, x + 5, y + 15);
+
+            موقعیت_فعلی_y_نمایش += نتیجه[2]; // افزایش موقعیت برای الگوی بعدی
+        }
+    });
 }
