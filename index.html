@@ -1,59 +1,29 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بهینه‌سازی چیدمان الگو</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>چیدمان الگوها</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>ابزار پیشرفته چیدمان الگو</h1>
-    </header>
+  <div class="container">
+    <h1>چیدمان بهینه الگوها</h1>
 
-    <main>
-        <section id="input-section">
-            <h2>ورودی‌ها</h2>
-            <div id="sheet-dimensions">
-                <h3>ابعاد شیت اصلی:</h3>
-                <label for="sheet-width">عرض شیت:</label>
-                <input type="number" id="sheet-width" value="1000">
-                <label for="sheet-height">ارتفاع شیت:</label>
-                <input type="number" id="sheet-height" value="600">
-            </div>
+    <label>عرض پارچه (cm):</label>
+    <input type="number" id="fabricWidth" placeholder="مثلاً 140">
+    
+    <label>اندازه‌ الگوها (عرض × طول - هر خط یک نمونه):</label>
+    <textarea id="patternList" placeholder="مثلاً:
+50x90
+60x110
+40x90
+..."></textarea>
 
-            <div id="patterns-input">
-                <h3>الگوها (قطعات):</h3>
-                <div id="pattern-list">
-                    <div class="pattern-entry">
-                        <input type="text" class="pattern-id" placeholder="شناسه الگو (مثلا A)">
-                        <input type="number" class="pattern-width" placeholder="عرض">
-                        <input type="number" class="pattern-height" placeholder="ارتفاع">
-                        <input type="number" class="pattern-quantity" placeholder="تعداد" value="1">
-                        <button class="remove-pattern">حذف</button>
-                    </div>
-                </div>
-                <button id="add-pattern">افزودن الگوی جدید</button>
-            </div>
-            <button id="optimize-button">شروع بهینه‌سازی</button>
-        </section>
+    <button onclick="optimizeLayout()">شروع بهینه‌سازی</button>
 
-        <section id="output-section">
-            <h2>نتایج چیدمان</h2>
-            <div id="visualization-area">
-                <canvas id="nesting-canvas"></canvas>
-            </div>
-            <div id="results-summary">
-                <p>درصد پرتی: <span id="waste-percentage">--</span>%</p>
-                <p>پیام: <span id="message-log">--</span></p>
-            </div>
-        </section>
-    </main>
+    <div id="layoutResult"></div>
+  </div>
 
-    <footer>
-        <p>&copy; ۱۴۰۳ - پروژه الگوریتم چیدمان</p>
-    </footer>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
