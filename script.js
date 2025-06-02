@@ -1,123 +1,167 @@
-async function محاسبه_چیدمان() {
-    const عرض_پارچه_ورودی = document.getElementById("عرض_پارچه").value;
-    const الگوها_ورودی_متن = document.getElementById("الگوها").value.trim();
-    const نتایج_متنی_عنصر = document.getElementById("نتایج_متنی");
-    const canvas = document.getElementById("patternCanvas");
-    const ctx = canvas.getContext("2d");
+document.addEventListener('DOMContentLoaded', () => {
+    const sheetWidthInput = document.getElementById('sheet-width');
+    const sheetHeightInput = document.getElementById('sheet-height');
+    const patternListDiv = document.getElementById('pattern-list');
+    const addPatternButton = document.getElementById('add-pattern');
+    const optimizeButton = document.getElementById('optimize-button');
+    const canvas = document.getElementById('nesting-canvas');
+    const ctx = canvas.getContext('2d');
+    const wastePercentageSpan = document.getElementById('waste-percentage');
+    const messageLogSpan = document.getElementById('message-log');
 
-    // پاک کردن نتایج قبلی
-    نتایج_متنی_عنصر.textContent = "";
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let patternCounter = 0;
 
-    if (!عرض_پارچه_ورودی || !الگوها_ورودی_متن) {
-        نتایج_متنی_عنصر.textContent = "لطفاً عرض پارچه و ابعاد الگوها را وارد کنید.";
-        return;
+    function addPatternEntry() {
+        patternCounter++;
+        const entryDiv = document.createElement('div');
+        entryDiv.classList.add('pattern-entry');
+        entryDiv.innerHTML = `
+            <input type="text" class="pattern-id" placeholder="شناسه ${patternCounter}" value="P${patternCounter}">
+            <input type="number" class="pattern-width" placeholder="عرض">
+            <input type="number" class="pattern-height" placeholder="ارتفاع">
+            <input type="number" class="pattern-quantity" placeholder="تعداد" value="1">
+            <button class="remove-pattern">حذف</button>
+        `;
+        patternListDiv.appendChild(entryDiv);
+        entryDiv.querySelector('.remove-pattern').addEventListener('click', () => {
+            entryDiv.remove();
+        });
     }
 
-    const عرض_پارچه = parseFloat(عرض_پارچه_ورودی);
-    const الگوها = الگوها_ورودی_متن.split('\n').map(خط => {
-        const ابعاد = خط.split(',').map(s => parseFloat(s.trim()));
-        if (ابعاد.length === 2 && !isNaN(ابعاد[0]) && !isNaN(ابعاد[1]) && ابعاد[0] > 0 && ابعاد[1] > 0) {
-            return [ابعاد[0], ابعاد[1]]; // [طول, عرض]
-        }
-        return null;
-    }).filter(الگو => الگو !== null);
+    addPatternButton.addEventListener('click', addPatternEntry);
+    addPatternEntry(); // اضافه کردن یک الگوی اولیه
 
-    if (isNaN(عرض_پارچه) || عرض_پارچه <= 0 || الگوها.length === 0) {
-        نتایج_متنی_عنصر.textContent = "ورودی نامعتبر است. لطفاً عرض پارچه و حداقل یک الگوی صحیح وارد کنید.";
-        return;
-    }
+    optimizeButton.addEventListener('click', async () => {
+        const sheet = {
+            width: parseFloat(sheetWidthInput.value),
+            height: parseFloat(sheetHeightInput.value)
+        };
 
-    try {
-        نتایج_متنی_عنصر.textContent = "در حال محاسبه...";
-        // **** کد اتصال به بک‌اند ****
-        const response = await fetch('/api/calculate', { // این مسیر باید با مسیر تعریف شده در پایتون یکی باشد
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                عرض_پارچه: عرض_پارچه,
-                الگوها: الگوها
-            })
+        const patterns = [];
+        document.querySelectorAll('.pattern-entry').forEach(entry => {
+            const id = entry.querySelector('.pattern-id').value;
+            const width = parseFloat(entry.querySelector('.pattern-width').value);
+            const height = parseFloat(entry.querySelector('.pattern-height').value);
+            const quantity = parseInt(entry.querySelector('.pattern-quantity').value);
+
+            if (id && !isNaN(width) && width > 0 && !isNaN(height) && height > 0 && !isNaN(quantity) && quantity > 0) {
+                patterns.push({ id, width, height, quantity });
+            }
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: response.statusText }));
-            throw new Error(`خطا در سرور: ${response.status} - ${errorData.message || 'پاسخی از سرور دریافت نشد'}`);
+        if (isNaN(sheet.width) || sheet.width <= 0 || isNaN(sheet.height) || sheet.height <= 0) {
+            messageLogSpan.textContent = 'لطفاً ابعاد معتبر برای شیت وارد کنید.';
+            return;
+        }
+        if (patterns.length === 0) {
+            messageLogSpan.textContent = 'لطفاً حداقل یک الگو وارد کنید.';
+            return;
         }
 
-        const data = await response.json();
+        messageLogSpan.textContent = 'در حال پردازش...';
+        wastePercentageSpan.textContent = '--';
 
-        // نمایش نتایج متنی
-        نتایج_متنی_عنصر.textContent = JSON.stringify(data, null, 2);
+        try {
+            // آدرس API بک‌اند خود را اینجا قرار دهید
+            const response = await fetch('/api/nesting/optimize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ patterns, sheet }),
+            });
 
-        // نمایش بصری نتایج (اگر داده‌ها معتبر باشند)
-        if (Array.isArray(data)) {
-            نمایش_بصری(عرض_پارچه, data, canvas, ctx);
-        }
-
-    } catch (error) {
-        console.error("خطا در محاسبه چیدمان:", error);
-        نتایج_متنی_عنصر.textContent = `خطا: ${error.message}`;
-    }
-}
-
-function نمایش_بصری(عرض_پارچه_نمایش, نتایج_چیدمان_نمایش, canvas, ctx) {
-    // تنظیم ابعاد کانوس بر اساس ابعاد واقعی آن در صفحه (مهم برای دقت در رسم)
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (!نتایج_چیدمان_نمایش || !Array.isArray(نتایج_چیدمان_نمایش)) {
-        console.error("فرمت داده های چیدمان برای نمایش بصری نامعتبر است.");
-        return;
-    }
-
-    // پیدا کردن حداکثر ارتفاع مورد نیاز برای چیدمان، برای مقیاس‌بندی صحیح
-    let maxHeight = 0;
-    نتایج_چیدمان_نمایش.forEach(نتیجه => {
-        if (نتیجه && نتیجه.y !== undefined && نتیجه.length !== undefined) {
-            if ((نتیجه.y + نتیجه.length) > maxHeight) {
-                maxHeight = نتیجه.y + نتیجه.length;
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.errorMessage || `HTTP error! status: ${response.status}`);
             }
+
+            const result = await response.json();
+
+            if (result.errorMessage) {
+                messageLogSpan.textContent = `خطا: ${result.errorMessage}`;
+                drawSheet(sheet.width, sheet.height); // فقط شیت خالی را رسم کن
+            } else {
+                messageLogSpan.textContent = 'چیدمان با موفقیت انجام شد.';
+                wastePercentageSpan.textContent = result.wastePercentage !== undefined ? result.wastePercentage.toFixed(2) : '--';
+                drawLayout(sheet, result.placements, patterns);
+            }
+
+        } catch (error) {
+            console.error('Error during optimization:', error);
+            messageLogSpan.textContent = `خطا در ارتباط با سرور: ${error.message}`;
+            drawSheet(sheet.width, sheet.height); // فقط شیت خالی را رسم کن
         }
     });
-    if (maxHeight === 0) maxHeight = canvas.height / (canvas.width / عرض_پارچه_نمایش); // یک مقدار پیش‌فرض اگر هیچ الگویی چیده نشود
 
-    // مقیاس بر اساس عرض پارچه و عرض کانوس
-    const scaleX = canvas.width / عرض_پارچه_نمایش;
-    // مقیاس بر اساس ارتفاع چیدمان و ارتفاع کانوس
-    const scaleY = canvas.height / maxHeight;
-    const scale = Math.min(scaleX, scaleY) * 0.95; // استفاده از ضریب کوچکتر برای اطمینان از جا شدن و کمی حاشیه
+    function drawSheet(sheetWidth, sheetHeight) {
+        // تنظیم ابعاد canvas بر اساس ابعاد شیت برای نمایش بهتر
+        // می‌توانید یک مقیاس ثابت یا حداکثر اندازه برای canvas در نظر بگیرید
+        const displayMaxWidth = document.getElementById('visualization-area').clientWidth - 2; // -2 for border
+        const displayMaxHeight = 380; //ارتفاع ثابت برای نمایش
 
-    ctx.font = "10px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    نتایج_چیدمان_نمایش.forEach((نتیجه, index) => {
-        if (نتیجه) { // یعنی الگو قابل چیدمان بوده و اطلاعات موقعیت دارد
-            // نتیجه باید یک آبجکت با فرمت {x: عدد, y: عدد, width: عدد, length: عدد} باشد
-            // x: موقعیت شروع در عرض پارچه
-            // y: موقعیت شروع در طول پارچه
-            // width: عرض الگو
-            // length: طول الگو
-
-            const rectX = نتیجه.x * scale;
-            const rectY = نتیجه.y * scale;
-            const rectWidth = نتیجه.width * scale;
-            const rectLength = نتیجه.length * scale;
-            
-            ctx.strokeStyle = "blue";
-            ctx.lineWidth = 1;
-            ctx.strokeRect(rectX, rectY, rectWidth, rectLength);
-            
-            ctx.fillStyle = "black";
-            ctx.fillText(`(${نتیجه.width},${نتیجه.length})`, rectX + rectWidth / 2, rectY + rectLength / 2);
+        let scale;
+        if (sheetWidth / sheetHeight > displayMaxWidth / displayMaxHeight) {
+            scale = displayMaxWidth / sheetWidth;
         } else {
-            // می‌توانید برای الگوهای غیرقابل چیدمان پیامی نمایش دهید
-            console.log(`الگوی شماره ${index + 1} قابل چیدمان نبود.`);
+            scale = displayMaxHeight / sheetHeight;
         }
-    });
-}
+
+        canvas.width = sheetWidth * scale;
+        canvas.height = sheetHeight * scale;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+        return scale;
+    }
+
+    function drawLayout(sheet, placements, originalPatterns) {
+        const scale = drawSheet(sheet.width, sheet.height);
+
+        if (!placements) return;
+
+        const patternDetails = {};
+        originalPatterns.forEach(p => patternDetails[p.id] = p);
+
+
+        placements.forEach(p => {
+            const detail = originalPatterns.find(op => op.id === p.patternId);
+            if (!detail) return;
+
+            const rectX = p.x * scale;
+            const rectY = p.y * scale;
+            const rectWidth = (p.rotated ? detail.height : detail.width) * scale;
+            const rectHeight = (p.rotated ? detail.width : detail.height) * scale;
+
+
+            ctx.fillStyle = getRandomColor(p.patternId);
+            ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(rectX, rectY, rectWidth, rectHeight);
+
+            ctx.fillStyle = '#000';
+            ctx.font = `${Math.min(10, rectWidth / 3)}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(p.patternId, rectX + rectWidth / 2, rectY + rectHeight / 2);
+        });
+    }
+
+    const colorCache = {};
+    function getRandomColor(id) {
+        if (colorCache[id]) return colorCache[id];
+
+        const r = Math.floor(Math.random() * 200 + 55); // روشن‌تر
+        const g = Math.floor(Math.random() * 200 + 55);
+        const b = Math.floor(Math.random() * 200 + 55);
+        const color = `rgb(${r},${g},${b})`;
+        colorCache[id] = color;
+        return color;
+    }
+
+    // مقداردهی اولیه برای نمایش شیت
+    drawSheet(parseFloat(sheetWidthInput.value), parseFloat(sheetHeightInput.value));
+});
