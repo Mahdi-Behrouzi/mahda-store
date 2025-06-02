@@ -1,76 +1,122 @@
 body {
-    font-family: sans-serif;
-    direction: rtl;
-    text-align: right;
-    margin: 20px;
+    font-family: 'Tahoma', sans-serif;
+    margin: 0;
+    padding: 0;
     background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background: #333;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+section {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h2, h3 {
     color: #333;
 }
 
-h1, h2 {
-    color: #2c3e50;
-}
-
 label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    display: inline-block;
+    margin: 5px 0;
 }
 
-input[type="number"],
-textarea {
-    width: 200px;
+input[type="number"], input[type="text"] {
     padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
+    margin: 5px 5px 5px 0;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    box-sizing: border-box;
+    width: calc(20% - 12px); /* Adjust based on number of inputs per row */
 }
 
-textarea {
-    width: 300px;
-    height: 100px;
+
+.pattern-entry {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap; /* برای واکنش‌گرایی بهتر */
 }
+
+.pattern-entry input {
+    margin-right: 10px; /* فاصله بین اینپوت‌ها */
+}
+
+
+.pattern-entry .pattern-id { width: 100px; }
+.pattern-entry .pattern-width { width: 80px; }
+.pattern-entry .pattern-height { width: 80px; }
+.pattern-entry .pattern-quantity { width: 60px; }
+
 
 button {
-    background-color: #3498db;
+    background: #5cb85c;
     color: white;
-    padding: 10px 20px;
     border: none;
+    padding: 10px 15px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
+    margin-top: 10px;
 }
 
 button:hover {
-    background-color: #2980b9;
+    background: #4cae4c;
 }
 
-#result-container,
-#canvas-container {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    border-radius: 4px;
+#add-pattern {
+    background: #007bff;
+}
+#add-pattern:hover {
+    background: #0056b3;
 }
 
-pre {
-    background-color: #ecf0f1;
-    padding: 10px;
-    border-radius: 4px;
-    white-space: pre-wrap; /* برای شکستن خطوط طولانی */
-    word-wrap: break-word;
+.remove-pattern {
+    background: #d9534f;
+    font-size: 0.8em;
+    padding: 5px 8px;
+}
+.remove-pattern:hover {
+    background: #c9302c;
 }
 
-#canvas-container {
-    width: 500px; /* عرض کانتینر کانوس */
-    height: 300px; /* ارتفاع کانتینر کانوس */
-    border: 1px solid black;
-}
 
-#patternCanvas {
+#visualization-area {
     width: 100%;
-    height: 100%;
-    display: block; /* برای حذف فضای اضافی زیر کانوس */
+    height: 400px; /* ارتفاع را می‌توان بر اساس ابعاد شیت تنظیم کرد */
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    position: relative; /* برای جایگذاری canvas */
+    overflow: auto; /* اگر محتوا بزرگتر بود اسکرول بخورد */
+}
+
+#nesting-canvas {
+    display: block;
+    /* ابعاد canvas با جاوااسکریپت تنظیم می‌شود */
+}
+
+#results-summary p {
+    font-size: 1.1em;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background: #333;
+    color: #fff;
+    margin-top: 30px;
 }
