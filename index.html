@@ -1,29 +1,52 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-  <meta charset="UTF-8">
-  <title>چیدمان الگوها</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <title>فروشگاه مهدا</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>چیدمان بهینه الگوها</h1>
+  <header>
+    <h1>فروشگاه مهدا</h1>
+    <div class="top-actions">
+      <input id="search" type="text" placeholder="جستجو..." />
+      <button id="btn-login">ورود</button>
+      <button id="btn-register">ثبت‌نام</button>
+      <button id="btn-admin">پنل مدیریت</button>
+      <button id="btn-cart-toggle">سبد خرید (<span id="cart-count">0</span>)</button>
+    </div>
+  </header>
 
-    <label>عرض پارچه (cm):</label>
-    <input type="number" id="fabricWidth" placeholder="مثلاً 140">
-    
-    <label>اندازه‌ الگوها (عرض × طول - هر خط یک نمونه):</label>
-    <textarea id="patternList" placeholder="مثلاً:
-50x90
-60x110
-40x90
-..."></textarea>
+  <main>
+    <aside id="filters">
+      <h3>فیلترها</h3>
+      <label>دسته:
+        <select id="category-filter">
+          <option value="all">همه</option>
+        </select>
+      </label>
+      <label>حداکثر قیمت:
+        <input id="max-price" type="number" placeholder="مثال: 200000" />
+      </label>
+      <button id="apply-filters">اعمال فیلتر</button>
+    </aside>
 
-    <button onclick="optimizeLayout()">شروع بهینه‌سازی</button>
+    <section id="catalog"></section>
 
-    <div id="layoutResult"></div>
-  </div>
+    <aside id="cart-panel" class="hidden">
+      <h3>سبد خرید</h3>
+      <ul id="cart-list"></ul>
+      <p id="cart-total">مجموع: ۰ تومان</p>
+      <button id="checkout-btn">پرداخت</button>
+      <button id="clear-cart">خالی کردن سبد</button>
+    </aside>
+  </main>
 
+  <footer>
+    <p>© 2025 فروشگاه مهدا</p>
+  </footer>
+
+  <script src="auth.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
